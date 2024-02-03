@@ -20,12 +20,9 @@
     </params>
 </plugin>
 """
-import os
 import re
 import time
-import serial
 import Domoticz
-import struct
 
 class BasePlugin:
     nextConnect = 3
@@ -42,6 +39,7 @@ class BasePlugin:
     def __init__(self):
         self.num_outputs = 7
         self.serial_port = None
+        self.last_heartbeat = time.time()
         return
 
     def onStart(self):
@@ -113,6 +111,8 @@ class BasePlugin:
         Domoticz.Debug("Message: '" + msg + "'")
         if msg == "Reset":
             self.initPorts(False)
+        elif msg == "Heartbeat":
+            self.last_heartbeat = time.time()
         else:
             m = re.search(r'^O([0-9]+)=([0-9])$', msg)
             if m:
@@ -151,7 +151,7 @@ class BasePlugin:
                             else:
                                 Domoticz.Error("Analog input number invalid: '" + msg + "'")
                         else:
-                            Domoticz.Debug("Message not handled: '" + msg + "'")
+                            Domoticz.Error("Message not handled: '" + msg + "'")
         return
 
     # Called when a command is received from Domoticz. The Unit parameters matches the Unit specified in the device definition and should be used to map commands
@@ -179,10 +179,19 @@ class BasePlugin:
 
     def onHeartbeat(self):
         Domoticz.Debug("onHeartbeat called")
-        cmd = ""
-        for i in range(0, self.NB_ANALOG_INPUTS):
-            cmd += "GA" + str(i) + "X"
-        self.serial_port.Send(cmd)
+        if self.serial_port is not None:
+            if self.serial_port.Connected():
+                cmd = ""
+                for i in range(0, self.NB_ANALOG_INPUTS):
+                    cmd += "GA" + str(i) + "X"
+                self.serial_port.Send(cmd)
+                last_heart = time.time() - self.last_heartbeat
+                if last_heart > 30:
+                    Domoticz.Error('Last heartbeat was ' + str(last_heart) + ' seconds ago, reconnecting')
+                    self.serial_port.Disconnect()
+            else:
+                Domoticz.Error('Transport is not connected, reconnecting')
+                self.serial_port.Connect()
 
 
 global _plugin

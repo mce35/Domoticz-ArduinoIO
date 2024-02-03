@@ -7,10 +7,12 @@ const int g_iMaxOutput = g_iFirstInput - g_iFirstOutput;
 const int g_iMaxInput = 4;
 const int g_iMaxAnalogIn = 6;
 const int g_iInputCheckInterval = 100;
+const int g_iHeartbeatInterval = 5000;
 
 unsigned long g_ulLastStateCheckMillis = 0;
 unsigned long g_ulFirstSerialByteMillis = 0;
 unsigned long g_ulLastLedBlinkMillis = 0;
+unsigned long g_ulLastHeartbeatMillis = 0;
 uint8_t g_tui8LastState[g_iMaxInput];
 char g_tcSerialcmd[4];
 char g_uiSerialBytesRead = 0;
@@ -84,6 +86,7 @@ void initPorts()
   g_iBlinkInterval = 250;
   g_ui8Initialized = 1;
   printConf();
+  g_ulLastHeartbeatMillis = millis();
 }
 
 void setup()
@@ -95,6 +98,7 @@ void setup()
   pinMode(13, OUTPUT);
   g_ulLastStateCheckMillis = millis();
   g_ulLastLedBlinkMillis = millis();
+  g_ulLastHeartbeatMillis = millis();
   reset();
 }
 
@@ -281,6 +285,12 @@ void loop()
     g_ulLastLedBlinkMillis += g_iBlinkInterval;
     if (g_ui8Initialized == 0)
       Serial.println("Reset");
+  }
+
+  if (g_ui8Initialized != 0 && ulCurrentTime - g_ulLastHeartbeatMillis > g_iHeartbeatInterval)
+  {
+    g_ulLastHeartbeatMillis = ulCurrentTime;
+    Serial.println("Heartbeat");
   }
 
   if (g_ui8Initialized != 0 && ulCurrentTime - g_ulLastStateCheckMillis > g_iInputCheckInterval)

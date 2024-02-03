@@ -71,6 +71,8 @@ When an input changes (digital input or analog input with Schmitt trigger), the 
     - `IN=V`: example `I0=1` (V=0 or 1), for digital inputs
     - `AND=V`: example `A0D=1` (V=0 or 1), for analog inputs
 
+The message `Heartbeat` is also emitted periodically by the board (every 5s) when configured.
+
 ## TODO
 
 - Allow to configure the number of Inputs/Outputs/Analog inputs by other mean than editing the plugin
