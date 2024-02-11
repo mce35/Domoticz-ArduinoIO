@@ -43,7 +43,7 @@ Commands and responses
 1. `VERS`: Returns the firmware version
     - `ArduinoIO-v1.0`
 2. `RSTX`: Reset the ports (all pins are set to input)
-    - `Reset`: Indicates that the board is not configured. This message is emitted every second.
+    - `Reset`: Indicates that the board is not configured. This message is emitted every second when the board is not configured.
 3. ``CN[IOA]V``: Set number of Inputs/Outputs/Analog inputs to V
     - No response sent
 4. `CLNV`: Set output pin N as active low, val=V (example: `CL01` sets output 0 as active low - setting it to 0 makes it HIGH)
@@ -79,3 +79,5 @@ The message `Heartbeat` is also emitted periodically by the board (every 5s) whe
 - Allow to configure active low pins by other mean than editing the plugin
 - Allow to configure the thresholds of the Schmitt trigger
 - Make protocol more reliable
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/donate/?business=VNKNGYUAZQR6A&no_recurring=0&currency_code=EUR)
